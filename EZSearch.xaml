@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<component:EZContentView xmlns="http://xamarin.com/schemas/2014/forms"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                         xmlns:component="clr-namespace:EZAppMaker.Components"
+                         xmlns:resource="clr-namespace:EZAppMaker.Resources"
+                         xmlns:view="clr-namespace:EZForms"
+                         x:DataType="view:EZSearch"
+                         x:Class="EZForms.EZSearch"
+                         Title="Search">
+
+    <ContentView.Content>
+        <Frame x:Name="SearchFrame"
+               StyleClass="EZFrameStyle"
+               Padding="10"
+               CornerRadius="20"
+               HasShadow="False"
+               Background="{resource:BrushResource ezsearch_background}"
+               BorderColor="{resource:ColorResource ezsearch_border}">
+
+               <StackLayout x:Name="EZSearchStack" StyleClass="EZStackStyle"/>
+
+        </Frame>
+    </ContentView.Content>
+
+</component:EZContentView>
+
