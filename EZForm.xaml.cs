@@ -490,20 +490,18 @@ namespace EZForms
             {
                 EZFieldTag fld = EZFormsBuilder.GetField(form, pair.Key);
 
-                if (fld.Filters.Count > 0)
+                if (fld.Filters.Count == 0) continue;
+
+                EZFilterTag filter = fld.Filters.Find((x) => x.Source == component.ItemId);
+
+                if (filter == null) continue;
+
+                pair.Value.Clear();
+
+                if (pair.Value.GetType() == typeof(EZCombo))
                 {
-                    EZFilterTag filter = fld.Filters.Find((x) => x.Source == component.ItemId);
-
-                    if (filter != null)
-                    {
-                        pair.Value.Clear();
-
-                        if (pair.Value.GetType() == typeof(EZCombo))
-                        {
-                            EZCombo combo = (EZCombo)pair.Value;
-                            combo.ItemsSource = BuildComboItemsSource(combo, fld.List);
-                        }
-                    }
+                    EZCombo combo = (EZCombo)pair.Value;
+                    combo.ItemsSource = BuildComboItemsSource(combo, fld.List);
                 }
             }
         }
@@ -614,7 +612,7 @@ namespace EZForms
 
         private void OnJumpTap()
         {
-
+            /* TBD */
         }
 
         private void OnSaveTap()
@@ -701,38 +699,37 @@ namespace EZForms
 
                 IEZComponent element = BuildElement(fld);
 
-                if (element != null)
+                if (element == null) continue;
+
+                contexts.Add(column, element);
+
+                if (!fld.LineBreak)
                 {
-                    contexts.Add(column, element);
-
-                    if (!fld.LineBreak)
+                    if (grd == null)
                     {
-                        if (grd == null)
-                        {
-                            grd = new Grid();
-                        }
-
-                        grd.ColumnDefinitions.Add(DefineGridColumn(fld));
-                        grd.Children.Add((View)element, col, 0);
-                        col++;
-
-                        continue;
+                        grd = new Grid();
                     }
 
-                    if (grd != null)
-                    {
-                        grd.ColumnDefinitions.Add(DefineGridColumn(fld));
-                        grd.Children.Add((View)element, col, 0);
-                        EZFormStack.Children.Add(grd);
+                    grd.ColumnDefinitions.Add(DefineGridColumn(fld));
+                    grd.Children.Add((View)element, col, 0);
+                    col++;
 
-                        grd = null;
-                        col = 0;
-
-                        continue;
-                    }
-
-                    EZFormStack.Children.Add((View)element);
+                    continue;
                 }
+
+                if (grd != null)
+                {
+                    grd.ColumnDefinitions.Add(DefineGridColumn(fld));
+                    grd.Children.Add((View)element, col, 0);
+                    EZFormStack.Children.Add(grd);
+
+                    grd = null;
+                    col = 0;
+
+                    continue;
+                }
+
+                EZFormStack.Children.Add((View)element);
             }
 
             EZFormStack.Children.Add(new EZExpander());
@@ -770,37 +767,36 @@ namespace EZForms
 
             EZEntry entry = null;
 
-            if (field != null)
+            if (field == null) return entry;
+
+            entry = new EZEntry();
+
+            entry.Detached = field.IsDetached;
+
+            entry.ItemId = field.Source;
+            entry.Label = DefineLabel(field);
+            entry.Placeholder = field.Placeholder;
+            entry.IsReadOnly = field.IsReadOnly;
+            entry.IsRequired = field.IsRequired;
+            entry.Mask = field.Mask;
+
+            if (!string.IsNullOrWhiteSpace(field.Keyboard))
             {
-                entry = new EZEntry();
-
-                entry.Detached = field.IsDetached;
-
-                entry.ItemId = field.Source;
-                entry.Label = DefineLabel(field);
-                entry.Placeholder = field.Placeholder;
-                entry.IsReadOnly = field.IsReadOnly;
-                entry.IsRequired = field.IsRequired;
-                entry.Mask = field.Mask;
-
-                if (!string.IsNullOrWhiteSpace(field.Keyboard))
-                {
-                    entry.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
-                }
-                else
-                {
-                    entry.Keyboard = DefineKeyboard(field.Source);
-                }
-
-                if (field.Length > 0)
-                {
-                    entry.MaxLength = field.Length;
-                }
-
-                entry.OnChanged += OnEZEntryChanged;
-                entry.Focused += OnEZEntryFocused;
-                entry.Unfocused += OnEZEntryUnfocused;
+                entry.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
             }
+            else
+            {
+                entry.Keyboard = DefineKeyboard(field.Source);
+            }
+
+            if (field.Length > 0)
+            {
+                entry.MaxLength = field.Length;
+            }
+
+            entry.OnChanged += OnEZEntryChanged;
+            entry.Focused += OnEZEntryFocused;
+            entry.Unfocused += OnEZEntryUnfocused;
 
             entry.SetBinding(EZEntry.TextProperty, CreateBinding());
             entry.BindingContext = dataset.Value(field.Source);
@@ -812,39 +808,38 @@ namespace EZForms
         {
             EZCombo combo = null;
 
-            if (field != null)
+            if (field == null) return combo;
+
+            combo = new EZCombo();
+
+            combo.Detached = field.IsDetached;
+
+            combo.ItemId = field.Source;
+            combo.Label = field.Label;
+            combo.Placeholder = field.Placeholder;
+            combo.IsReadOnly = field.IsReadOnly;
+            combo.IsRequired = field.IsRequired;
+            combo.Mask = field.Mask;
+
+            if (!string.IsNullOrWhiteSpace(field.Keyboard))
             {
-                combo = new EZCombo();
-
-                combo.Detached = field.IsDetached;
-
-                combo.ItemId = field.Source;
-                combo.Label = field.Label;
-                combo.Placeholder = field.Placeholder;
-                combo.IsReadOnly = field.IsReadOnly;
-                combo.IsRequired = field.IsRequired;
-                combo.Mask = field.Mask;
-
-                if (!string.IsNullOrWhiteSpace(field.Keyboard))
-                {
-                    combo.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
-                }
-                else
-                {
-                    combo.Keyboard = DefineKeyboard(field.Source);
-                }
-
-                if (field.Length > 0)
-                {
-                    combo.MaxLength = field.Length;
-                }
-
-                combo.ItemsSource = BuildComboItemsSource(combo, field.List);
-                combo.OnItemSelected += OnEZComboChanged;
-
-                combo.SetBinding(EZCombo.RawValueProperty, CreateBinding());
-                combo.BindingContext = dataset.Value(field.Source);
+                combo.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
             }
+            else
+            {
+                combo.Keyboard = DefineKeyboard(field.Source);
+            }
+
+            if (field.Length > 0)
+            {
+                combo.MaxLength = field.Length;
+            }
+
+            combo.ItemsSource = BuildComboItemsSource(combo, field.List);
+            combo.OnItemSelected += OnEZComboChanged;
+
+            combo.SetBinding(EZCombo.RawValueProperty, CreateBinding());
+            combo.BindingContext = dataset.Value(field.Source);
 
             return combo;
         }
@@ -853,20 +848,19 @@ namespace EZForms
         {
             EZCheckBox check = null;
 
-            if (field != null)
-            {
-                check = new EZCheckBox();
+            if (field == null) return check;
 
-                check.Detached = field.IsDetached;
+            check = new EZCheckBox();
 
-                check.ItemId = field.Source;
-                check.Label = DefineLabel(field);
+            check.Detached = field.IsDetached;
 
-                check.OnChange += OnEZCheckBoxChanged;
+            check.ItemId = field.Source;
+            check.Label = DefineLabel(field);
 
-                check.SetBinding(EZCheckBox.IsCheckedProperty, CreateBinding(new EZLongToBoolConverter()));
-                check.BindingContext = dataset.Value(field.Source);
-            }
+            check.OnChange += OnEZCheckBoxChanged;
+
+            check.SetBinding(EZCheckBox.IsCheckedProperty, CreateBinding(new EZLongToBoolConverter()));
+            check.BindingContext = dataset.Value(field.Source);
 
             return check;
         }
@@ -875,47 +869,46 @@ namespace EZForms
         {
             EZListTag lst = EZFormsBuilder.GetList(field.List);
 
-            if (lst != null)
+            if (lst == null) return group;
+
+            using (EZDataset ds = new EZDataset(database, lst.Source, null, null, 0))
             {
-                using (EZDataset ds = new EZDataset(database, lst.Source, null, null, 0))
+                if (ds != null)
                 {
-                    if (ds != null)
+                    List<EZListEntry> items = ds.ToListItemsSource(lst.Item, lst.Key, lst.Detail, lst.Group);
+
+                    if (items != null)
                     {
-                        List<EZListEntry> items = ds.ToListItemsSource(lst.Item, lst.Key, lst.Detail, lst.Group);
-
-                        if (items != null)
+                        if (group == null)
                         {
-                            if (group == null)
-                            {
-                                group = new EZRadioGroup() { ItemId = field.Source, Detached = field.IsDetached };
-                            }
-
-                            foreach (EZListEntry entry in items)
-                            {
-                                EZRadioButton radio = new EZRadioButton();
-
-                                radio.Group = group;
-                                radio.Label = entry.Item.ToString();
-                                radio.Value = entry.Key;
-                                radio.HorizontalOptions = LayoutOptions.Start;
-
-                                radio.CheckedChanged += OnEZRadioButtonChanged;
-
-                                radio.SetBinding
-                                (
-                                    RadioButton.IsCheckedProperty,
-                                    CreateBinding
-                                    (
-                                        new EZIsEqualConverter(),
-                                        entry.Key
-                                    )
-                                );
-
-                                group.Children.Add(radio);
-                            }
-
-                            group.BindingContext = dataset.Value(field.Source);
+                            group = new EZRadioGroup() { ItemId = field.Source, Detached = field.IsDetached };
                         }
+
+                        foreach (EZListEntry entry in items)
+                        {
+                            EZRadioButton radio = new EZRadioButton();
+
+                            radio.Group = group;
+                            radio.Label = entry.Item.ToString();
+                            radio.Value = entry.Key;
+                            radio.HorizontalOptions = LayoutOptions.Start;
+
+                            radio.CheckedChanged += OnEZRadioButtonChanged;
+
+                            radio.SetBinding
+                            (
+                                RadioButton.IsCheckedProperty,
+                                CreateBinding
+                                (
+                                    new EZIsEqualConverter(),
+                                    entry.Key
+                                )
+                            );
+
+                            group.Children.Add(radio);
+                        }
+
+                        group.BindingContext = dataset.Value(field.Source);
                     }
                 }
             }
@@ -927,21 +920,20 @@ namespace EZForms
         {
             EZPhoto photo = null;
 
-            if (field != null)
-            {
-                photo = new EZPhoto();
+            if (field == null) return photo;
 
-                photo.Detached = field.IsDetached;
+            photo = new EZPhoto();
 
-                photo.ItemId = field.Source;
-                photo.Label = DefineLabel(field);
-                photo.HeightRequest = DefineHeightRequest(field);
+            photo.Detached = field.IsDetached;
 
-                photo.OnChanged += OnEZPhotoChanged;
+            photo.ItemId = field.Source;
+            photo.Label = DefineLabel(field);
+            photo.HeightRequest = DefineHeightRequest(field);
 
-                photo.SetBinding(EZPhoto.PhotoFileProperty, CreateBinding());
-                photo.BindingContext = dataset.Value(field.Source);
-            }
+            photo.OnChanged += OnEZPhotoChanged;
+
+            photo.SetBinding(EZPhoto.PhotoFileProperty, CreateBinding());
+            photo.BindingContext = dataset.Value(field.Source);
 
             return photo;
         }
@@ -950,20 +942,19 @@ namespace EZForms
         {
             EZColorPicker picker = null;
 
-            if (field != null)
-            {
-                picker = new EZColorPicker();
+            if (field == null) return picker;
 
-                picker.Detached = field.IsDetached;
+            picker = new EZColorPicker();
 
-                picker.ItemId = field.Source;
-                picker.Label = DefineLabel(field);
+            picker.Detached = field.IsDetached;
 
-                picker.OnChanged += OnEZColorPickerChanged;
+            picker.ItemId = field.Source;
+            picker.Label = DefineLabel(field);
 
-                picker.SetBinding(EZColorPicker.ColorValueProperty, CreateBinding());
-                picker.BindingContext = dataset.Value(field.Source);
-            }
+            picker.OnChanged += OnEZColorPickerChanged;
+
+            picker.SetBinding(EZColorPicker.ColorValueProperty, CreateBinding());
+            picker.BindingContext = dataset.Value(field.Source);
 
             return picker;
         }
@@ -972,23 +963,22 @@ namespace EZForms
         {
             EZSlider slider = null;
 
-            if (field != null)
-            {
-                slider = new EZSlider();
+            if (field == null) return slider;
+            
+            slider = new EZSlider();
 
-                slider.Detached = field.IsDetached;
+            slider.Detached = field.IsDetached;
 
-                slider.ItemId = field.Source;
-                slider.Label = DefineLabel(field);
-                slider.Decimals = field.Decimals;
-                slider.Min = field.Min;
-                slider.Max = field.Max;
+            slider.ItemId = field.Source;
+            slider.Label = DefineLabel(field);
+            slider.Decimals = field.Decimals;
+            slider.Min = field.Min;
+            slider.Max = field.Max;
 
-                slider.OnDragCompleted += OnEZSliderChanged;
+            slider.OnDragCompleted += OnEZSliderChanged;
 
-                slider.SetBinding(EZSlider.ValueProperty, CreateBinding());
-                slider.BindingContext = dataset.Value(field.Source);
-            }
+            slider.SetBinding(EZSlider.ValueProperty, CreateBinding());
+            slider.BindingContext = dataset.Value(field.Source);
 
             return slider;
         }
@@ -997,20 +987,19 @@ namespace EZForms
         {
             EZRating rating = null;
 
-            if (field != null)
-            {
-                rating = new EZRating();
+            if (field == null) return rating;
+            
+            rating = new EZRating();
 
-                rating.Detached = field.IsDetached;
+            rating.Detached = field.IsDetached;
 
-                rating.ItemId = field.Source;
-                rating.Label = DefineLabel(field);
+            rating.ItemId = field.Source;
+            rating.Label = DefineLabel(field);
 
-                rating.OnChanged += OnEZRatingChanged;
+            rating.OnChanged += OnEZRatingChanged;
 
-                rating.SetBinding(EZRating.RatingProperty, CreateBinding());
-                rating.BindingContext = dataset.Value(field.Source);
-            }
+            rating.SetBinding(EZRating.RatingProperty, CreateBinding());
+            rating.BindingContext = dataset.Value(field.Source);
 
             return rating;
         }
@@ -1019,23 +1008,22 @@ namespace EZForms
         {
             EZSignature signature = null;
 
-            if (field != null)
-            {
-                signature = new EZSignature();
+            if (field == null) return signature;
+            
+            signature = new EZSignature();
 
-                signature.Detached = field.IsDetached;
+            signature.Detached = field.IsDetached;
 
-                signature.ItemId = field.Source;
-                signature.Label = DefineLabel(field);
-                signature.HeightRequest = DefineHeightRequest(field);
+            signature.ItemId = field.Source;
+            signature.Label = DefineLabel(field);
+            signature.HeightRequest = DefineHeightRequest(field);
 
-                if (field.IsRequired) signature.IsRequired = field.IsRequired;
+            if (field.IsRequired) signature.IsRequired = field.IsRequired;
 
-                signature.OnChanged += OnEZSignatureChanged;
+            signature.OnChanged += OnEZSignatureChanged;
 
-                signature.SetBinding(EZSignature.DataProperty, CreateBinding());
-                signature.BindingContext = dataset.Value(field.Source);
-            }
+            signature.SetBinding(EZSignature.DataProperty, CreateBinding());
+            signature.BindingContext = dataset.Value(field.Source);
 
             return signature;
         }
@@ -1168,200 +1156,184 @@ namespace EZForms
         {
             string column = combo.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    combo.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            combo.Detached = field.IsDetached;
 
-                    if (combo.Label == null) combo.Label = DefineLabel(field);
-                    if (combo.Placeholder == null) combo.Placeholder = field.Placeholder;
-                    if (combo.Mask == null) combo.Mask = field.Mask;
+            if (combo.Label == null) combo.Label = DefineLabel(field);
+            if (combo.Placeholder == null) combo.Placeholder = field.Placeholder;
+            if (combo.Mask == null) combo.Mask = field.Mask;
 
-                    if (field.IsRequired) combo.IsRequired = field.IsRequired;
-                    if (field.Length != 0) combo.MaxLength = field.Length;
-                    if (field.Keyboard != "") combo.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
+            if (field.IsRequired) combo.IsRequired = field.IsRequired;
+            if (field.Length != 0) combo.MaxLength = field.Length;
+            if (field.Keyboard != "") combo.Keyboard = EZFormsBuilder.KeyboardType(field.Keyboard);
 
-                    combo.ItemsSource = BuildComboItemsSource(combo, field.List);
+            combo.ItemsSource = BuildComboItemsSource(combo, field.List);
 
-                    combo.OnItemSelected += OnEZComboChanged;
+            combo.OnItemSelected += OnEZComboChanged;
 
-                    combo.SetBinding(EZCombo.RawValueProperty, CreateBinding());
-                    combo.BindingContext = dataset.Value(column);
+            combo.SetBinding(EZCombo.RawValueProperty, CreateBinding());
+            combo.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, combo);
-                }
-            }
+            contexts.Add(column, combo);
         }
 
         private void BindCheckBox(EZCheckBox check)
         {
             string column = check.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
 
-                if (field != null)
-                {
-                    check.Detached = field.IsDetached;
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                    if (string.IsNullOrWhiteSpace(check.Label)) check.Label = DefineLabel(field);
+            if (field == null) return;
+            
+            check.Detached = field.IsDetached;
 
-                    check.OnChange += OnEZCheckBoxChanged;
+            if (string.IsNullOrWhiteSpace(check.Label)) check.Label = DefineLabel(field);
 
-                    check.SetBinding(EZCheckBox.IsCheckedProperty, CreateBinding(new EZLongToBoolConverter()));
-                    check.BindingContext = dataset.Value(column);
+            check.OnChange += OnEZCheckBoxChanged;
 
-                    contexts.Add(column, check);
-                }
-            }
+            check.SetBinding(EZCheckBox.IsCheckedProperty, CreateBinding(new EZLongToBoolConverter()));
+            check.BindingContext = dataset.Value(column);
+
+            contexts.Add(column, check);
         }
 
         private void BindRadioGroup(EZRadioGroup group)
         {
             string column = group.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    group.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            group.Detached = field.IsDetached;
 
-                    _ = BuildRadioGroup(field, group);
+            _ = BuildRadioGroup(field, group);
 
-                    contexts.Add(column, group);
-                }
-            }
+            contexts.Add(column, group);
         }
 
         private void BindSignature(EZSignature signature)
         {
             string column = signature.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    signature.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            signature.Detached = field.IsDetached;
 
-                    if (signature.HeightRequest == -1) signature.HeightRequest = DefineHeightRequest(field);
-                    if (signature.Label == "") signature.Label = DefineLabel(field);
+            if (signature.HeightRequest == -1) signature.HeightRequest = DefineHeightRequest(field);
+            if (signature.Label == "") signature.Label = DefineLabel(field);
 
-                    signature.OnChanged += OnEZSignatureChanged;
+            signature.OnChanged += OnEZSignatureChanged;
 
-                    signature.SetBinding(EZSignature.DataProperty, CreateBinding());
-                    signature.BindingContext = dataset.Value(column);
+            signature.SetBinding(EZSignature.DataProperty, CreateBinding());
+            signature.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, signature);
-                }
-            }
+            contexts.Add(column, signature);
         }
 
         private void BindPhoto(EZPhoto photo)
         {
             string column = photo.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    photo.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            photo.Detached = field.IsDetached;
 
-                    if (photo.HeightRequest == -1) photo.HeightRequest = DefineHeightRequest(field);
-                    if (photo.Label == "") photo.Label = DefineLabel(field);
+            if (photo.HeightRequest == -1) photo.HeightRequest = DefineHeightRequest(field);
+            if (photo.Label == "") photo.Label = DefineLabel(field);
 
-                    photo.OnChanged += OnEZPhotoChanged;
+            photo.OnChanged += OnEZPhotoChanged;
 
-                    photo.SetBinding(EZPhoto.PhotoFileProperty, CreateBinding());
-                    photo.BindingContext = dataset.Value(column);
+            photo.SetBinding(EZPhoto.PhotoFileProperty, CreateBinding());
+            photo.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, photo);
-                }
-            }
+            contexts.Add(column, photo);
         }
 
         private void BindSlider(EZSlider slider)
         {
             string column = slider.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    slider.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            slider.Detached = field.IsDetached;
 
-                    if (slider.Label == "") slider.Label = DefineLabel(field);
+            if (slider.Label == "") slider.Label = DefineLabel(field);
 
-                    if (slider.Min == 0) slider.Min = field.Min;
-                    if (slider.Max == 0) slider.Max = field.Max;
+            if (slider.Min == 0) slider.Min = field.Min;
+            if (slider.Max == 0) slider.Max = field.Max;
 
-                    slider.OnDragCompleted += OnEZSliderChanged;
+            slider.OnDragCompleted += OnEZSliderChanged;
 
-                    slider.SetBinding(EZSlider.ValueProperty, CreateBinding());
-                    slider.BindingContext = dataset.Value(column);
+            slider.SetBinding(EZSlider.ValueProperty, CreateBinding());
+            slider.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, slider);
-                }
-            }
+            contexts.Add(column, slider);
         }
 
         private void BindRating(EZRating rating)
         {
             string column = rating.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    rating.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            rating.Detached = field.IsDetached;
 
-                    if (rating.Label == "") rating.Label = DefineLabel(field);
+            if (rating.Label == "") rating.Label = DefineLabel(field);
 
-                    rating.OnChanged += OnEZRatingChanged;
+            rating.OnChanged += OnEZRatingChanged;
 
-                    rating.SetBinding(EZSlider.ValueProperty, CreateBinding());
-                    rating.BindingContext = dataset.Value(column);
+            rating.SetBinding(EZSlider.ValueProperty, CreateBinding());
+            rating.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, rating);
-                }
-            }
+            contexts.Add(column, rating);
         }
 
         private void BindColorPicker(EZColorPicker picker)
         {
             string column = picker.ItemId;
 
-            if (dataset.ColumnExists(column))
-            {
-                EZFieldTag field = EZFormsBuilder.GetField(form, column);
+            if (!dataset.ColumnExists(column)) return;
+            
+            EZFieldTag field = EZFormsBuilder.GetField(form, column);
 
-                if (field != null)
-                {
-                    picker.Detached = field.IsDetached;
+            if (field == null) return;
+            
+            picker.Detached = field.IsDetached;
 
-                    if (picker.Label == "") picker.Label = DefineLabel(field);
+            if (picker.Label == "") picker.Label = DefineLabel(field);
                     
-                    picker.OnChanged += OnEZColorPickerChanged;
+            picker.OnChanged += OnEZColorPickerChanged;
 
-                    picker.SetBinding(EZColorPicker.ColorValueProperty, CreateBinding());
-                    picker.BindingContext = dataset.Value(column);
+            picker.SetBinding(EZColorPicker.ColorValueProperty, CreateBinding());
+            picker.BindingContext = dataset.Value(column);
 
-                    contexts.Add(column, picker);
-                }
-            }
+            contexts.Add(column, picker);
         }
     }
 }

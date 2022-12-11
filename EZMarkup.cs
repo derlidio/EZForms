@@ -241,15 +241,14 @@ namespace EZForms
             EZFormTag frm = GetForm(form);
             EZFieldTag fld = null;
 
-            if (frm != null)
+            if (frm == null) return fld;
+
+            foreach (EZFieldTag field in frm.Fields)
             {
-                foreach (EZFieldTag field in frm.Fields)
+                if (field.Source == column)
                 {
-                    if (field.Source == column)
-                    {
-                        fld = field;
-                        break;
-                    }
+                    fld = field;
+                    break;
                 }
             }
 
@@ -390,15 +389,14 @@ namespace EZForms
         {
             EZListTag list = null;
 
-            if (!string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name)) return list;
+            
+            foreach (EZListTag lst in Markup.Lists)
             {
-                foreach (EZListTag lst in Markup.Lists)
+                if (lst.Name == name)
                 {
-                    if (lst.Name == name)
-                    {
-                        list = lst;
-                        break;
-                    }
+                    list = lst;
+                    break;
                 }
             }
 
