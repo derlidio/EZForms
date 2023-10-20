@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ez:EZContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                  xmlns:ez="clr-namespace:EZAppMaker.Components;assembly=EZAppMaker"
+                  xmlns:resource="clr-namespace:EZAppMaker.Resources;assembly=EZAppMaker"
+                  xmlns:view="clr-namespace:EZForms"
+                  x:Class="EZForms.EZForm"
+                  x:DataType="view:EZForm">
+
+    <ContentView.Resources>
+        <Style TargetType="Path" Class="CRUD_Button">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Aspect" Value="Uniform"/>
+            <Setter Property="Fill" Value="{resource:BrushResource ezpathbutton_fill}"/>
+            <Setter Property="Stroke" Value="{resource:BrushResource ezpathbutton_stroke}"/>
+            <Setter Property="StrokeThickness" Value="0"/>
+            <Setter Property="InputTransparent" Value="True"/>
+        </Style>
+    </ContentView.Resources>
+
+    <ContentView.Content>
+
+        <Grid x:Name="EZFormGrid" StyleClass="EZGridStyle">
+
+            <!-- Templates for the Floaters: [ Database Action Buttons (Top) ] & [ Navigation Bar (Bottom) ] -->
+            
+            <Grid StyleClass="EZGridStyle"                  
+                  x:Name="ButtonBar"
+                  HeightRequest="41"
+                  BackgroundColor="{resource:ColorResource ezforms_buttonbar}"
+                  VerticalOptions="Start">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="1"/>
+                </Grid.RowDefinitions>
+
+                <Grid StyleClass="EZGridStyle" HeightRequest="40" ColumnSpacing="15">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid x:Name="ButtonDelete" ClassId="D" WidthRequest="40" HeightRequest="40" Grid.Column="0" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.delete.txt}"/>
+                    </Grid>
+
+                    <Grid x:Name="ButtonRestore" ClassId="R" WidthRequest="40" HeightRequest="40" Grid.Column="1" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.restore.txt}"/>
+                    </Grid>
+
+                    <Label x:Name="CurrentPage" Text="" FontFamily="OpenSansSemibold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Grid.Column="3"/>
+
+                    <Grid x:Name="ButtonJump" ClassId="J" WidthRequest="40" HeightRequest="40" Grid.Column="4" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.jump.txt}"/>
+                    </Grid>
+
+                    <Grid x:Name="ButtonAdd" ClassId="C" WidthRequest="40" HeightRequest="40" Grid.Column="5" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.add.txt}"/>
+                    </Grid>
+
+                    <Grid x:Name="ButtonCancel" ClassId="X" WidthRequest="40" HeightRequest="40" Grid.Column="5" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.cancel.txt}"/>
+                    </Grid>
+
+                    <Grid x:Name="ButtonSave" ClassId="U" WidthRequest="40" HeightRequest="40" Grid.Column="6" IsEnabled="False">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_CRUD_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.save.txt}"/>
+                    </Grid>
+
+                </Grid>
+
+                <BoxView x:Name="ButtonBarSeparator" Grid.Row="1" HeightRequest="1" Color="{resource:ColorResource ezforms_buttonbarseparator}"/>
+
+            </Grid>
+
+            <Grid StyleClass="EZGridStyle"
+                    x:Name="NavigationBar"
+                    HeightRequest="41"
+                    BackgroundColor="{resource:ColorResource ezforms_navigationbar}"
+                    IsEnabled="False"
+                    VerticalOptions="End">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+
+                <BoxView x:Name="NavBarSeparator" HeightRequest="1" Color="{resource:ColorResource ezforms_navigationbarseparator}"/>
+
+                <Grid StyleClass="EZGridStyle" ColumnSpacing="15" Grid.Row="1">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- [F]irst Record -->
+                    <Grid x:Name="NavFirst" ClassId="F" WidthRequest="40" HeightRequest="40" Grid.Column="0">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_Navigation_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.navigation_first.txt}"/>
+                    </Grid>
+
+                    <!-- [P]revious Record -->
+                    <Grid x:Name="NavPrevious" ClassId="P" WidthRequest="40" HeightRequest="40" Grid.Column="1">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_Navigation_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.navigation_previous.txt}"/>
+                    </Grid>
+
+                    <Slider x:Name="NavSlider"
+                            StyleClass="EZSliderStyle"
+                            VerticalOptions="Center"
+                            HeightRequest="32"
+                            Grid.Column="2"/>
+
+                    <Grid x:Name="PointerGrid"
+                          HeightRequest="32"
+                          StyleClass="EZGridStyle"
+                          Margin="8,0,8,0"
+                          InputTransparent="True"
+                          Grid.Column="2">
+
+                        <BoxView x:Name="SliderTrackMin"
+                                    HeightRequest="1"
+                                    Color="{resource:ColorResource ezslider_min_track}"
+                                    VerticalOptions="Center"
+                                    Margin="8,0,8,0"/>
+
+                        <BoxView x:Name="SliderTrackMax"
+                                    HeightRequest="1"
+                                    Color="{resource:ColorResource ezslider_max_track}"
+                                    VerticalOptions="Center"
+                                    Margin="8,0,8,0"
+                                    HorizontalOptions="Start"/>
+
+                        <Image x:Name="SliderPointer"
+                                Source="{resource:ImageResource EZAppMaker.Assets.Images.slider_b.png}"
+                                WidthRequest="16"
+                                Aspect="AspectFill"
+                                HorizontalOptions="Start"/>
+                    </Grid>
+
+                    <!-- [N]ext Record -->
+                    <Grid x:Name="NavNext" ClassId="N" WidthRequest="40" HeightRequest="40" Grid.Column="3">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_Navigation_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.navigation_next.txt}"/>
+                    </Grid>
+
+                    <!-- [L]ast Record -->
+                    <Grid x:Name="NavLast" ClassId="L" WidthRequest="40" HeightRequest="40" Grid.Column="4">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Handle_Navigation_Tap"/>
+                        </Grid.GestureRecognizers>
+                        <Path StyleClass="CRUD_Button" Data="{resource:PathResource EZAppMaker.Assets.Paths.navigation_last.txt}"/>
+                    </Grid>
+
+                </Grid>
+
+            </Grid>
+
+            <!-- Main Stack for holding EZMarkup Forms -->
+
+            <StackLayout x:Name="EZFormStack" Margin="0" Padding="10,42,10,42" Spacing="10"/>
+
+            <!-- Placeholder for the Search components -->
+
+            <Grid x:Name="EZSearchGrid" StyleClass="EZGridStyle" Margin="5,42,5,42" IsVisible="False"/>
+
+        </Grid>
+
+    </ContentView.Content>
+
+</ez:EZContentView>
