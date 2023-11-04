@@ -718,13 +718,22 @@ namespace EZForms
             {
                 while (reader.Read())
                 {
+                    //column_pragma = new EZColumnPragma()
+                    //{
+                    //    Index = (long)reader.GetValue(0),
+                    //    ColumnType = (string)reader.GetValue(2),
+                    //    Null = (long)reader.GetValue(3),
+                    //    Default = reader.GetValue(4),
+                    //    PrimaryKey = (long)reader.GetValue(5)
+                    //};
+
                     column_pragma = new EZColumnPragma()
                     {
-                        Index = (long)reader.GetValue(0),
-                        ColumnType = (string)reader.GetValue(2),
-                        Null = (long)reader.GetValue(3),
-                        Default = reader.GetValue(4),
-                        PrimaryKey = (long)reader.GetValue(5)
+                        Index = (long)reader.GetValue(reader.GetOrdinal("cid")),
+                        ColumnType = (string)reader.GetValue(reader.GetOrdinal("type")),
+                        Null = (long)reader.GetValue(reader.GetOrdinal("notnull")),
+                        Default = reader.GetValue(reader.GetOrdinal("dflt_value")),
+                        PrimaryKey = (long)reader.GetValue(reader.GetOrdinal("pk"))
                     };
 
                     pragma.Add((string)reader.GetValue(1), column_pragma);

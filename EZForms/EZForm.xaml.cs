@@ -739,7 +739,7 @@ namespace EZForms
                 {
                     grd.ColumnDefinitions.Add(DefineGridColumn(fld));
                     grd.Add((View)element, col, 0);
-                    EZFormStack.Children.Add(grd);
+                    EZFormStack.Add(grd);
 
                     grd = null;
                     col = 0;
@@ -747,10 +747,10 @@ namespace EZForms
                     continue;
                 }
 
-                EZFormStack.Children.Add((View)element);
+                EZFormStack.Add((View)element);
             }
 
-            EZFormStack.Children.Add(new EZExpander());
+            EZFormStack.Add(new EZExpander());
         }
 
         private IEZComponent BuildElement(EZFieldTag field)
@@ -925,7 +925,7 @@ namespace EZForms
                             
                             radio.SetBinding(RadioButton.IsCheckedProperty, binding);
 
-                            group.Children.Add(radio);
+                            group.Add(radio);
                         }
 
                         group.BindingContext = dataset.Value(field.Source);
@@ -1139,7 +1139,7 @@ namespace EZForms
                 }
             }
 
-            EZFormStack.Children.Add(view);
+            EZFormStack.Add(view);
         }
 
         private void BindEntry(EZEntry entry)

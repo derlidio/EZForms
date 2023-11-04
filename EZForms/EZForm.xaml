@@ -200,7 +200,7 @@
 
             <!-- Main Stack for holding EZMarkup Forms -->
 
-            <StackLayout x:Name="EZFormStack" Margin="0" Padding="10,42,10,42" Spacing="10"/>
+            <VerticalStackLayout x:Name="EZFormStack" Margin="0" Padding="10,42,10,42" Spacing="10"/>
 
             <!-- Placeholder for the Search components -->
 
