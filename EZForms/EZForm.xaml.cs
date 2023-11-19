@@ -532,7 +532,7 @@ namespace EZForms
         // |___/___|_|\___/_| |_|_|_/__/  \___\___/_|_|_|_|_|_\___/_||_| |___|\_/\___|_||_\__/__/
 
         private void OnEZEntryChanged(EZEntry entry, TextChangedEventArgs args) { CheckChanges(entry); }
-        private void OnEZComboChanged(EZCombo combo, object selected) { CheckChanges(combo); }
+        private void OnEZFlexComboChanged(EZCombo combo, object selected) { CheckChanges(combo); }
         private void OnEZCheckBoxChanged(EZCheckBox checkbox) { CheckChanges(checkbox); }
         private void OnEZSignatureChanged(EZSignature signature) { CheckChanges(signature); }
         private void OnEZPhotoChanged(EZPhoto photo) { CheckChanges(photo); }
@@ -856,7 +856,7 @@ namespace EZForms
             }
 
             combo.ItemsSource = BuildComboItemsSource(combo, field.List);
-            combo.OnItemSelected += OnEZComboChanged;
+            combo.OnItemSelected += OnEZFlexComboChanged;
 
             combo.SetBinding(EZCombo.RawValueProperty, ".");
             combo.BindingContext = dataset.Value(field.Source);
@@ -1194,7 +1194,7 @@ namespace EZForms
 
             combo.ItemsSource = BuildComboItemsSource(combo, field.List);
 
-            combo.OnItemSelected += OnEZComboChanged;
+            combo.OnItemSelected += OnEZFlexComboChanged;
 
             combo.SetBinding(EZCombo.RawValueProperty, ".");
             combo.BindingContext = dataset.Value(column);
