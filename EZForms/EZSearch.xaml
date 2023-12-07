@@ -10,17 +10,20 @@
                          Title="Search">
 
     <ContentView.Content>
-        <Frame x:Name="SearchFrame"
-               StyleClass="EZFrameStyle"
-               Padding="10"
-               CornerRadius="20"
-               HasShadow="False"
-               Background="{resource:BrushResource ezsearch_background}"
-               BorderColor="{resource:ColorResource ezsearch_border}">
 
-               <StackLayout x:Name="EZSearchStack" StyleClass="EZStackStyle"/>
+        <Border x:Name="SearchFrame"
+                Padding="10"
+                BackgroundColor="{resource:ColorResource ezsearch_background}"
+                Stroke="{resource:BrushResource ezsearch_border}">
 
-        </Frame>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+
+            <VerticalStackLayout x:Name="EZSearchStack" StyleClass="EZVerticalStackStyle"/>
+
+        </Border>
+
     </ContentView.Content>
 
 </ez:EZContentView>

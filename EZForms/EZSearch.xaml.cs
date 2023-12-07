@@ -39,7 +39,7 @@ namespace EZForms
             base.ThemeChanged();
 
             SearchFrame.Background = Default.Brush("ezsearch_background");
-            SearchFrame.BorderColor = Default.Color("ezsearch_border");
+            SearchFrame.Stroke = Default.Brush("ezsearch_border");
         }
 
         public new void Focus()
